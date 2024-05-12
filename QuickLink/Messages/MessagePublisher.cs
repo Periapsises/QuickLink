@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace QuickLink
 {
@@ -36,14 +35,11 @@ namespace QuickLink
             if (!_messageHandlers.ContainsKey(messageType))
                 return;
 
-            //Task handle = new Task(() => {
-                foreach (var handler in _messageHandlers[messageType])
-                {
-                    handler(reader);
-                    reader.Seek(0);
-                }
-            //});
-            //handle.Start();
+            foreach (var handler in _messageHandlers[messageType])
+            {
+                handler(reader);
+                reader.Seek(0);
+            }
         }
     }
 }

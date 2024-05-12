@@ -20,12 +20,12 @@ namespace QuickLink
         /// <summary>
         /// Event that is raised when a client connects to the server.
         /// </summary>
-        public event EventHandler<TcpClient>? ClientConnected;
+        public EventPublisher<RemoteClient> ClientConnected = new EventPublisher<RemoteClient>();
 
         /// <summary>
         /// Event that is raised when a client disconnects from the server.
         /// </summary>
-        public event EventHandler<TcpClient>? ClientDisconnected;
+        public EventPublisher<RemoteClient> ClientDisconnected = new EventPublisher<RemoteClient>();
 
         private readonly Host _host;
         private readonly TcpListener _listener;
@@ -67,9 +67,9 @@ namespace QuickLink
 #endif
                 RemoteClient remoteClient = new RemoteClient(client);
                 remoteClient.MessageReceived += (sender, e) => ReceiveMessage(e);
-                remoteClient.ExceptionOccured += (sender, e) => ClientDisconnected?.Invoke(this, client);
+                remoteClient.ClientDisconnected.Subscribe(() => { ClientDisconnected.Publish(remoteClient); });
                 _clients.Add(remoteClient);
-                ClientConnected?.Invoke(this, client);
+                ClientConnected.Publish(remoteClient);
             }
         }
 

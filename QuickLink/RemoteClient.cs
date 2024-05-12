@@ -11,17 +11,41 @@ namespace QuickLink
     /// </summary>
     public class RemoteClient : IDisposable
     {
+        /// <summary>
+        /// Gets the TCP client associated with the remote client.
+        /// </summary>
         public readonly TcpClient? Client;
+
+        /// <summary>
+        /// Gets the host associated with the remote client.
+        /// </summary>
         public readonly Host? Host;
 
+        /// <summary>
+        /// Occurs when a message is received from the remote client.
+        /// </summary>
         public event EventHandler<MessageReader>? MessageReceived;
-        public event EventHandler<Exception>? ExceptionOccured;
+
+        /// <summary>
+        /// Occurs when an exception occurs while communicating with the remote client.
+        /// </summary>
+        public EventPublisher<Exception> ExceptionOccured = new EventPublisher<Exception>();
+
+        /// <summary>
+        /// Occurs when the client disconnects from the server.
+        /// </summary>
+        public EventPublisher ClientDisconnected = new EventPublisher();
 
         private readonly ConcurrentQueue<byte[]> _queue = new ConcurrentQueue<byte[]>();
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(0);
         private readonly CancellationTokenSource _cancellationToken = new CancellationTokenSource();
+        private bool _hasNotifiedDisconnect = false;
         private bool _disposed = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RemoteClient"/> class with the specified TCP client.
+        /// </summary>
+        /// <param name="client">The TCP client associated with the remote client.</param>
         public RemoteClient(TcpClient client)
         {
             Client = client;
@@ -29,11 +53,19 @@ namespace QuickLink
             Task.Run(HandleWritingToClient);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RemoteClient"/> class with the specified host.
+        /// </summary>
+        /// <param name="host">The host associated with the remote client.</param>
         public RemoteClient(Host host)
         {
             Host = host;
         }
 
+        /// <summary>
+        /// Sends a message to the remote client.
+        /// </summary>
+        /// <param name="writer">The message writer containing the message to send.</param>
         public void Send(MessageWriter writer)
         {
             if (Client != null)
@@ -86,10 +118,12 @@ namespace QuickLink
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                ExceptionOccured?.Invoke(this, ex);
+                ExceptionOccured.Publish(exception);
             }
+
+            NotifyDisconnect();
         }
 
         private async Task HandleWritingToClient()
@@ -120,16 +154,31 @@ namespace QuickLink
             }
             catch (Exception exception)
             {
-                ExceptionOccured?.Invoke(this, exception);
+                ExceptionOccured.Publish(exception);
             }
         }
 
+        private void NotifyDisconnect()
+        {
+            if (_hasNotifiedDisconnect) return;
+            _hasNotifiedDisconnect = true;
+
+            ClientDisconnected.Publish();
+        }
+
+        /// <summary>
+        /// Releases all resources used by the <see cref="RemoteClient"/> object.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases the unmanaged resources used by the <see cref="RemoteClient"/> object and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed)
@@ -144,6 +193,9 @@ namespace QuickLink
             _disposed = true;
         }
 
+        /// <summary>
+        /// Finalizes the remote client instance.
+        /// </summary>
         ~RemoteClient()
         {
             Dispose(false);

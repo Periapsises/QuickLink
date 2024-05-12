@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,10 +7,51 @@ using System.Threading.Tasks;
 namespace QuickLink
 {
     /// <summary>
+    /// Represents the state of the connection.
+    /// </summary>
+    public enum ConnectionState
+    {
+        /// <summary>
+        /// The connection is disconnected.
+        /// </summary>
+        Disconnected,
+
+        /// <summary>
+        /// The connection is in the process of connecting.
+        /// </summary>
+        Connecting,
+
+        /// <summary>
+        /// The connection is successfully established.
+        /// </summary>
+        Connected,
+
+        /// <summary>
+        /// An error occurred during the connection.
+        /// </summary>
+        Error
+    }
+
+    /// <summary>
     /// Represents a client that connects to a server using TCP/IP.
     /// </summary>
     public class Client : IClient, IDisposable
     {
+        /// <summary>
+        /// Current state of the client's TCP connection.
+        /// </summary>
+        public ConnectionState ConnectionState = ConnectionState.Disconnected;
+
+        /// <summary>
+        /// Event that is raised when the client successfully connects to the server.
+        /// </summary>
+        public EventPublisher Connected = new EventPublisher();
+
+        /// <summary>
+        /// Event that is raised when the client disconnects from the server.
+        /// </summary>
+        public EventPublisher Disconnected = new EventPublisher();
+
         /// <summary>
         /// Event that is raised when a message is received from the server.
         /// </summary>
@@ -21,26 +61,46 @@ namespace QuickLink
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(0);
         private readonly CancellationTokenSource _cancellationToken = new CancellationTokenSource();
         private readonly MessagePublisher _messageReceived = new MessagePublisher();
-        private readonly TcpClient _client;
+        private readonly TcpClient _client = new TcpClient();
         private bool _disposed = false;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Client"/> class and connects to the specified host and port.
+        /// Connects the client to the specified host and port.
         /// </summary>
         /// <param name="host">The host name or IP address of the server.</param>
         /// <param name="port">The port number to connect to.</param>
-        public Client(string host, int port)
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="SocketException"></exception>
+        /// <exception cref="ObjectDisposedException"></exception>
+        public async Task Connect(string host, int port)
         {
 #if DEBUG
-            Console.WriteLine($"[Client] Connecting to {host}:{port}");
+            Console.WriteLine("[Client] Connecting to the server");
 #endif
-            _client = new TcpClient();
-            _client.Connect(host, port);
-            Task.Run(HandleReceiveFromServer);
-            Task.Run(HandleSendToServer);
+
+            ConnectionState = ConnectionState.Connecting;
+
+            try
+            {
+                await _client.ConnectAsync(host, port);
+            }
+            catch
+            {
+                ConnectionState = ConnectionState.Error;
+                throw;
+            }
+
 #if DEBUG
             Console.WriteLine("[Client] Connected to the server");
 #endif
+
+            ConnectionState = ConnectionState.Connected;
+
+            _ = Task.Run(HandleReceiveFromServer);
+            _ = Task.Run(HandleSendToServer);
+
+            Connected.Publish();
         }
 
         private async Task HandleReceiveFromServer()
@@ -70,6 +130,9 @@ namespace QuickLink
                     _messageReceived.Publish(new MessageReader(data));
                 }
             }
+
+            ConnectionState = ConnectionState.Disconnected;
+            Disconnected.Publish();
         }
 
         private async Task HandleSendToServer()
@@ -98,12 +161,16 @@ namespace QuickLink
                     }
                 }
             }
+
+            ConnectionState = ConnectionState.Disconnected;
         }
 
         /// <summary>
         /// Sends a message to the server.
         /// </summary>
         /// <param name="message">The message to send.</param>
+        /// <exception cref="ObjectDisposedException"></exception>
+        /// <exception cref="SemaphoreFullException"></exception>
         public void SendToServer(MessageWriter message)
         {
 #if DEBUG
