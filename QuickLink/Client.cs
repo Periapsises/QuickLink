@@ -105,34 +105,39 @@ namespace QuickLink
 
         private async Task HandleReceiveFromServer()
         {
-            byte[] lengthBuffer = new byte[4];
-
-            using (NetworkStream stream = _client.GetStream())
+            try
             {
-                while (stream.CanRead && !_cancellationToken.Token.IsCancellationRequested)
+                byte[] lengthBuffer = new byte[4];
+
+                using (NetworkStream stream = _client.GetStream())
                 {
-                    await stream.ReadAsync(lengthBuffer, 0, lengthBuffer.Length, _cancellationToken.Token);
-                    uint length = BitConverter.ToUInt32(lengthBuffer, 0);
+                    while (stream.CanRead && !_cancellationToken.Token.IsCancellationRequested)
+                    {
+                        await stream.ReadAsync(lengthBuffer, 0, lengthBuffer.Length, _cancellationToken.Token);
+                        uint length = BitConverter.ToUInt32(lengthBuffer, 0);
 #if DEBUG
-                    Console.WriteLine($"[Client] Received header for a {length} byte message from the server");
+                        Console.WriteLine($"[Client] Received header for a {length} byte message from the server");
 #endif
 
-                    int offset = 0;
-                    int bytesRead;
+                        int offset = 0;
+                        int bytesRead;
 
-                    byte[] data = new byte[length];
+                        byte[] data = new byte[length];
 
-                    while (offset < length && (bytesRead = await stream.ReadAsync(data, offset, (int)length - offset, _cancellationToken.Token)) > 0)
-                    {
-                        offset += bytesRead;
+                        while (offset < length && (bytesRead = await stream.ReadAsync(data, offset, (int)length - offset, _cancellationToken.Token)) > 0)
+                        {
+                            offset += bytesRead;
+                        }
+
+                        _messageReceived.Publish(new MessageReader(data));
                     }
-
-                    _messageReceived.Publish(new MessageReader(data));
                 }
             }
-
-            ConnectionState = ConnectionState.Disconnected;
-            Disconnected.Publish();
+            finally
+            {
+                ConnectionState = ConnectionState.Disconnected;
+                Disconnected.Publish();
+            }
         }
 
         private async Task HandleSendToServer()
