@@ -8,6 +8,7 @@ namespace QuickLink
     public class MessageType
     {
         private static readonly List<MessageType> _messageTypes = new List<MessageType>();
+        private static readonly object _lock = new object();
 
         /// <summary>
         /// Gets the unique identifier of the message type.
@@ -43,14 +44,17 @@ namespace QuickLink
         /// <returns>The message type with the specified name.</returns>
         public static MessageType Get(string name)
         {
-            foreach (MessageType mType in _messageTypes)
+            lock (_lock)
             {
-                if (mType.Name == name) return mType;
-            }
+                foreach (MessageType mType in _messageTypes)
+                {
+                    if (mType.Name == name) return mType;
+                }
 
-            MessageType messageType = new MessageType(_messageTypes.Count, name);
-            _messageTypes.Add(messageType);
-            return messageType;
+                MessageType messageType = new MessageType(_messageTypes.Count, name);
+                _messageTypes.Add(messageType);
+                return messageType;
+            }
         }
     }
 }
