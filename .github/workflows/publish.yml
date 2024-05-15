@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set Version
         run: |
-          sed -i -e 's/<!-- Version -->/${{ github.ref_name }}/' ./QuickLink/QuickLink.csproj
+          sed -i -e "s/<!-- Version -->/$(echo '${{ github.ref_name }}' | sed 's/^v//')/" ./QuickLink/QuickLink.csproj
       - name: Pack
         run: dotnet pack ./QuickLink/QuickLink.csproj -c Release -o ./artifacts
       - name: Publish
