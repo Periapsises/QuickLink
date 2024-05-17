@@ -64,12 +64,14 @@ public class MessageTests
             writer.WriteByte(0x01);
             writer.WriteInt16(0x0203);
             writer.WriteInt32(0x04050607);
+            writer.WriteFloat(1.23f);
             writer.WriteString("Hello, world!");
 
             MessageReader reader = writer.ToReader();
             Assert.Equal(0x01, reader.ReadByte());
             Assert.Equal(0x0203, reader.ReadInt16());
             Assert.Equal(0x04050607, reader.ReadInt32());
+            Assert.Equal(1.23f, reader.ReadFloat());
             Assert.Equal("Hello, world!", reader.ReadString());
         }
     }

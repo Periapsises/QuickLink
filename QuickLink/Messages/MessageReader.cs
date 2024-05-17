@@ -70,6 +70,18 @@ namespace QuickLink
         }
 
         /// <summary>
+        /// Reads a 32-bit signed float from the buffer.
+        /// </summary>
+        /// <returns>The float read from the buffer.</returns>
+        public float ReadFloat()
+        {
+            EnsureCanReadLength(4);
+            float value = BitConverter.ToSingle(_buffer, _offset);
+            _offset += 4;
+            return value;
+        }
+
+        /// <summary>
         /// Reads a string from the buffer.
         /// </summary>
         /// <returns>The string read from the buffer.</returns>
