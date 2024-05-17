@@ -55,4 +55,22 @@ public class MessageTests
         Assert.Equal(2, message1FiredCount);
         Assert.Equal(2, message2FiredCount);
     }
+
+    [Fact(DisplayName = "Messages can properly write and read different types of data.")]
+    public void MessagesCanWriteAndReadDifferentDataTypes()
+    {
+        using (MessageWriter writer = new MessageWriter(MessageType1))
+        {
+            writer.WriteByte(0x01);
+            writer.WriteInt16(0x0203);
+            writer.WriteInt32(0x04050607);
+            writer.WriteString("Hello, world!");
+
+            MessageReader reader = writer.ToReader();
+            Assert.Equal(0x01, reader.ReadByte());
+            Assert.Equal(0x0203, reader.ReadInt16());
+            Assert.Equal(0x04050607, reader.ReadInt32());
+            Assert.Equal("Hello, world!", reader.ReadString());
+        }
+    }
 }
