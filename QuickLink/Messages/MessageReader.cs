@@ -117,6 +117,19 @@ namespace QuickLink
         }
 
         /// <summary>
+        /// Writes the specified amount of bytes to the provided buffer.
+        /// </summary>
+        /// <param name="buffer">The buffer to write the bytes to.</param>
+        /// <param name="offset">The offset at which to write the bytes in the output buffer.</param>
+        /// <param name="length">The amount of bytes to write to the buffer.</param>
+        public void ReadBytes(byte[] buffer, int offset, int length)
+        {
+            EnsureCanReadLength(length);
+            Array.Copy(_buffer, _offset, buffer, offset, length);
+            _offset += length;
+        }
+
+        /// <summary>
         /// Sets the current position in the buffer to the specified offset.
         /// </summary>
         /// <param name="offset">The offset to seek to.</param>
