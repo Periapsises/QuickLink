@@ -55,4 +55,41 @@ public class MessageTests
         Assert.Equal(2, message1FiredCount);
         Assert.Equal(2, message2FiredCount);
     }
+
+    [Fact(DisplayName = "Messages can properly write and read different types of data.")]
+    public void MessagesCanWriteAndReadDifferentDataTypes()
+    {
+        using (MessageWriter writer = new MessageWriter(MessageType1))
+        {
+            byte[] testBytes = {0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21};
+
+            writer.WriteBool(true);
+            writer.WriteBool(false);
+            writer.WriteByte(0x01);
+            writer.WriteInt16(0x0203);
+            writer.WriteInt32(0x04050607);
+            writer.WriteFloat(1.23f);
+            writer.WriteDouble(1.23);
+            writer.WriteString("Hello, world!");
+            writer.WriteBytes(testBytes, 0, testBytes.Length);
+
+            byte[] resultBytes = new byte[testBytes.Length];
+
+            MessageReader reader = writer.ToReader();
+            Assert.True(reader.ReadBool());
+            Assert.False(reader.ReadBool());
+            Assert.Equal(0x01, reader.ReadByte());
+            Assert.Equal(0x0203, reader.ReadInt16());
+            Assert.Equal(0x04050607, reader.ReadInt32());
+            Assert.Equal(1.23f, reader.ReadFloat());
+            Assert.Equal(1.23, reader.ReadDouble());
+            Assert.Equal("Hello, world!", reader.ReadString());
+            reader.ReadBytes(resultBytes, 0, resultBytes.Length);
+
+            for (int i = 0; i < testBytes.Length; i++)
+            {
+                Assert.Equal(testBytes[i], resultBytes[i]);
+            }
+        }
+    }
 }

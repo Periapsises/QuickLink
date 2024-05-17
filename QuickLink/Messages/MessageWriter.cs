@@ -24,6 +24,24 @@ namespace QuickLink
         }
 
         /// <summary>
+        /// Writes a boolean to the underlying memory stream
+        /// </summary>
+        /// <param name="value">The value to write</param>
+        public void WriteBool(bool value)
+        {
+            WriteByte((byte)(value ? 1 : 0));
+        }
+
+        /// <summary>
+        /// Writes a byte to the underlying memory stream
+        /// </summary>
+        /// <param name="value">The value to write</param>
+        public void WriteByte(byte value)
+        {
+            _memoryStream.WriteByte(value);
+        }
+
+        /// <summary>
         /// Writes a 16-bit signed integer to the underlying memory stream.
         /// </summary>
         /// <param name="value">The value to write.</param>
@@ -38,6 +56,26 @@ namespace QuickLink
         /// </summary>
         /// <param name="value">The value to write.</param>
         public void WriteInt32(int value)
+        {
+            byte[] buffer = BitConverter.GetBytes(value);
+            _memoryStream.Write(buffer, 0, buffer.Length);
+        }
+
+        /// <summary>
+        /// Writes a 32-bit signed float to the underlying memory stream.
+        /// </summary>
+        /// <param name="value">The value to write.</param>
+        public void WriteFloat(float value)
+        {
+            byte[] buffer = BitConverter.GetBytes(value);
+            _memoryStream.Write(buffer, 0, buffer.Length);
+        }
+
+        /// <summary>
+        /// Writes a 32-bit signed double to the underlying memory stream.
+        /// </summary>
+        /// <param name="value">The value to write.</param>
+        public void WriteDouble(double value)
         {
             byte[] buffer = BitConverter.GetBytes(value);
             _memoryStream.Write(buffer, 0, buffer.Length);

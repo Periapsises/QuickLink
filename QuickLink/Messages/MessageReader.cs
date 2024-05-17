@@ -36,6 +36,26 @@ namespace QuickLink
         }
 
         /// <summary>
+        /// Reads a boolean from the buffer.
+        /// </summary>
+        /// <returns>The boolean read from the buffer</returns>
+        public bool ReadBool()
+        {
+            EnsureCanReadLength(1);
+            return _buffer[_offset++] == 1;
+        }
+
+        /// <summary>
+        /// Reads a byte from the buffer.
+        /// </summary>
+        /// <returns>The byte read from the buffer</returns>
+        public byte ReadByte()
+        {
+            EnsureCanReadLength(1);
+            return _buffer[_offset++];
+        }
+
+        /// <summary>
         /// Reads a 16-bit signed integer from the buffer.
         /// </summary>
         /// <returns>The 16-bit signed integer read from the buffer.</returns>
@@ -60,6 +80,30 @@ namespace QuickLink
         }
 
         /// <summary>
+        /// Reads a 32-bit signed float from the buffer.
+        /// </summary>
+        /// <returns>The float read from the buffer.</returns>
+        public float ReadFloat()
+        {
+            EnsureCanReadLength(4);
+            float value = BitConverter.ToSingle(_buffer, _offset);
+            _offset += 4;
+            return value;
+        }
+
+        /// <summary>
+        /// Reads a 32-bit signed double from the buffer.
+        /// </summary>
+        /// <returns>The double read from the buffer.</returns>
+        public double ReadDouble()
+        {
+            EnsureCanReadLength(8);
+            double value = BitConverter.ToDouble(_buffer, _offset);
+            _offset += 8;
+            return value;
+        }
+
+        /// <summary>
         /// Reads a string from the buffer.
         /// </summary>
         /// <returns>The string read from the buffer.</returns>
@@ -70,6 +114,19 @@ namespace QuickLink
             string value = Encoding.UTF8.GetString(_buffer, _offset, length);
             _offset += length;
             return value;
+        }
+
+        /// <summary>
+        /// Writes the specified amount of bytes to the provided buffer.
+        /// </summary>
+        /// <param name="buffer">The buffer to write the bytes to.</param>
+        /// <param name="offset">The offset at which to write the bytes in the output buffer.</param>
+        /// <param name="length">The amount of bytes to write to the buffer.</param>
+        public void ReadBytes(byte[] buffer, int offset, int length)
+        {
+            EnsureCanReadLength(length);
+            Array.Copy(_buffer, _offset, buffer, offset, length);
+            _offset += length;
         }
 
         /// <summary>
