@@ -36,6 +36,16 @@ namespace QuickLink
         }
 
         /// <summary>
+        /// Reads a boolean from the buffer.
+        /// </summary>
+        /// <returns>The boolean read from the buffer</returns>
+        public bool ReadBool()
+        {
+            EnsureCanReadLength(1);
+            return _buffer[_offset++] == 1;
+        }
+
+        /// <summary>
         /// Reads a byte from the buffer.
         /// </summary>
         /// <returns>The byte read from the buffer</returns>

@@ -61,6 +61,8 @@ public class MessageTests
     {
         using (MessageWriter writer = new MessageWriter(MessageType1))
         {
+            writer.WriteBool(true);
+            writer.WriteBool(false);
             writer.WriteByte(0x01);
             writer.WriteInt16(0x0203);
             writer.WriteInt32(0x04050607);
@@ -68,6 +70,8 @@ public class MessageTests
             writer.WriteString("Hello, world!");
 
             MessageReader reader = writer.ToReader();
+            Assert.True(reader.ReadBool());
+            Assert.False(reader.ReadBool());
             Assert.Equal(0x01, reader.ReadByte());
             Assert.Equal(0x0203, reader.ReadInt16());
             Assert.Equal(0x04050607, reader.ReadInt32());

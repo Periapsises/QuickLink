@@ -24,6 +24,15 @@ namespace QuickLink
         }
 
         /// <summary>
+        /// Writes a boolean to the underlying memory stream
+        /// </summary>
+        /// <param name="value">The value to write</param>
+        public void WriteBool(bool value)
+        {
+            WriteByte((byte)(value ? 1 : 0));
+        }
+
+        /// <summary>
         /// Writes a byte to the underlying memory stream
         /// </summary>
         /// <param name="value">The value to write</param>
