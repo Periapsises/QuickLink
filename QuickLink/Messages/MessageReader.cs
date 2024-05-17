@@ -92,6 +92,18 @@ namespace QuickLink
         }
 
         /// <summary>
+        /// Reads a 32-bit signed double from the buffer.
+        /// </summary>
+        /// <returns>The double read from the buffer.</returns>
+        public double ReadDouble()
+        {
+            EnsureCanReadLength(8);
+            double value = BitConverter.ToDouble(_buffer, _offset);
+            _offset += 8;
+            return value;
+        }
+
+        /// <summary>
         /// Reads a string from the buffer.
         /// </summary>
         /// <returns>The string read from the buffer.</returns>

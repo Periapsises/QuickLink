@@ -62,10 +62,20 @@ namespace QuickLink
         }
 
         /// <summary>
-        /// Writes a 32-bit sugned float to the underlying memory stream.
+        /// Writes a 32-bit signed float to the underlying memory stream.
         /// </summary>
         /// <param name="value">The value to write.</param>
         public void WriteFloat(float value)
+        {
+            byte[] buffer = BitConverter.GetBytes(value);
+            _memoryStream.Write(buffer, 0, buffer.Length);
+        }
+
+        /// <summary>
+        /// Writes a 32-bit signed double to the underlying memory stream.
+        /// </summary>
+        /// <param name="value">The value to write.</param>
+        public void WriteDouble(double value)
         {
             byte[] buffer = BitConverter.GetBytes(value);
             _memoryStream.Write(buffer, 0, buffer.Length);
