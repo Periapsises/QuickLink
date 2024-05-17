@@ -36,6 +36,16 @@ namespace QuickLink
         }
 
         /// <summary>
+        /// Reads a byte from the buffer.
+        /// </summary>
+        /// <returns>The byte read from the buffer</returns>
+        public byte ReadByte()
+        {
+            EnsureCanReadLength(1);
+            return _buffer[_offset++];
+        }
+
+        /// <summary>
         /// Reads a 16-bit signed integer from the buffer.
         /// </summary>
         /// <returns>The 16-bit signed integer read from the buffer.</returns>

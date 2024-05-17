@@ -24,6 +24,15 @@ namespace QuickLink
         }
 
         /// <summary>
+        /// Writes a byte to the underlying memory stream
+        /// </summary>
+        /// <param name="value">The value to write</param>
+        public void WriteByte(byte value)
+        {
+            _memoryStream.WriteByte(value);
+        }
+
+        /// <summary>
         /// Writes a 16-bit signed integer to the underlying memory stream.
         /// </summary>
         /// <param name="value">The value to write.</param>
