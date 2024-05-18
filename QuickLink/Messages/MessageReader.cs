@@ -25,7 +25,7 @@ namespace QuickLink.Messaging
             _buffer = buffer;
             _offset = 0;
 
-            Type = MessageType.Get(ReadInt16());
+            Type = MessageType.Get(ReadUInt32());
         }
 
         private void EnsureCanReadLength(int length)
@@ -75,6 +75,30 @@ namespace QuickLink.Messaging
         {
             EnsureCanReadLength(4);
             int value = BitConverter.ToInt32(_buffer, _offset);
+            _offset += 4;
+            return value;
+        }
+
+        /// <summary>
+        /// Reads a 16-bit unsigned integer from the buffer.
+        /// </summary>
+        /// <returns>The 16-bit unsigned integer read from the buffer.</returns>
+        public uint ReadUInt16()
+        {
+            EnsureCanReadLength(2);
+            uint value = BitConverter.ToUInt16(_buffer, _offset);
+            _offset += 2;
+            return value;
+        }
+
+        /// <summary>
+        /// Reads a 32-bit unsigned integer from the buffer.
+        /// </summary>
+        /// <returns>The 32-bit unsigned integer read from the buffer.</returns>
+        public uint ReadUInt32()
+        {
+            EnsureCanReadLength(4);
+            uint value = BitConverter.ToUInt32(_buffer, _offset);
             _offset += 4;
             return value;
         }
