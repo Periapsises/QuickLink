@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace QuickLink
+namespace QuickLink.Messaging
 {
     /// <summary>
     /// Represents a reader for reading messages from a byte buffer.

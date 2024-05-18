@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace QuickLink
+namespace QuickLink.Messaging
 {
     /// <summary>
     /// Represents a writer for creating binary messages.

@@ -1,3 +1,5 @@
+using QuickLink.Messaging;
+
 namespace QuickLink
 {
     /// <summary>

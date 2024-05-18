@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace QuickLink
+namespace QuickLink.Messaging
 {
     /// <summary>
     /// Represents a message type.

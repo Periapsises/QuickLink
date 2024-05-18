@@ -1,4 +1,5 @@
 ﻿using System;
+using QuickLink.Messaging;
 
 namespace QuickLink
 {

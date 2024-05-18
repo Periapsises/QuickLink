@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace QuickLink
+namespace QuickLink.Messaging
 {
     /// <summary>
     /// Represents a message publisher that allows subscribing to and publishing messages.
