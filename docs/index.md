@@ -26,4 +26,4 @@ dotnet add package QuickLink
 
 ## Getting Started
 
-To get started with Quick Link, chek out the [Getting Started](getting-started.md) guide, as well as the [API Documentation](<xref:QuickLink>)
+To get started with Quick Link, chek out the [Getting Started](getting-started.md) guide, as well as the [API Documentation](xref:QuickLink)

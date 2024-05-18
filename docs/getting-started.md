@@ -26,7 +26,7 @@ When a message is created with a type, only event listeners attached to that typ
 
 ## Creating a local server
 
-To create a local server, a [Host](<xref:QuickLink.Host>) is needed along with a port on which the server will be listening.
+To create a local server, a <xref:QuickLink.Host> is needed along with a port on which the server will be listening.
 
 ```csharp
 using QuickLink;
@@ -49,7 +49,7 @@ public class Program
 
 ## Creating a client and connecting
 
-When creating a [Client](<xref:QuickLink.Client>), the server's address and port are required.  
+When creating a <xref:QuickLink.Client>, the server's address and port are required.  
 Upon connecting or disconnecting from the server, specific events will be fired.
 
 ```csharp
@@ -85,8 +85,8 @@ public class Program
 
 ## Creating messages
 
-Creating and writing data to a message can be done using the [MessageWriter](<xref:QuickLink.Messaging.MessageWriter>).  
-A [MessageType](<xref:QuickLink.Messaging.MessageType>) needs to be provided to initialize the message.
+Creating and writing data to a message can be done using the <xref:QuickLink.Messaging.MessageWriter>.  
+A <xref:QuickLink.Messaging.MessageType> needs to be provided to initialize the message.
 
 ```csharp
 MessageType GenericMessage = MessageType.Get("GenericMessage");
