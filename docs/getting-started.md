@@ -85,8 +85,8 @@ public class Program
 
 ## Creating messages
 
-Creating and writing data to a message can be done using the [MessageWriter](<xref:QuickLink.MessageWriter>).  
-A [MessageType](<xref:QuickLink.MessageType>) needs to be provided to initialize the message.
+Creating and writing data to a message can be done using the [MessageWriter](<xref:QuickLink.Messaging.MessageWriter>).  
+A [MessageType](<xref:QuickLink.Messaging.MessageType>) needs to be provided to initialize the message.
 
 ```csharp
 MessageType GenericMessage = MessageType.Get("GenericMessage");
@@ -118,7 +118,7 @@ host.SendToServer(writer); // The host is also a client!
 ## Receiving messages
 
 Once a message is sent, it will cause the message received events to be fired on the receiver(s).  
-Listeners need to be attached to a specific event type and accept a [MessageReader](<xref:QuickLink.MessageReader>) parameter.
+Listeners need to be attached to a specific event type and accept a [MessageReader](<xref:QuickLink.Messaging.MessageReader>) parameter.
 
 ```csharp
 MessageType GenericMessage = MessageType.Get("GenericMessage");
