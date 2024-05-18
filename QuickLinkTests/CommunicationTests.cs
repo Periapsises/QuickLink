@@ -1,4 +1,5 @@
 using QuickLink;
+using QuickLink.Messaging;
 
 namespace QuickLinkTests;
 
