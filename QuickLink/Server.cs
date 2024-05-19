@@ -101,6 +101,29 @@ namespace QuickLink
             }
         }
 
+        /// <summary>
+        /// Sends a message to a specific client.
+        /// </summary>
+        /// <param name="userID">The user id of the client to send the message to.</param>
+        /// <param name="message">The message to send.</param>
+        public void SendToClient(uint userID, MessageWriter message)
+        {
+            if (_clients.TryGetValue(userID, out NetworkEntity client))
+            {
+                client.SendMessage(message);
+            }
+        }
+
+        /// <summary>
+        /// Sends a message to a specific client.
+        /// </summary>
+        /// <param name="client">The client to send the message to.</param>
+        /// <param name="message">The message to send.</param>
+        public void SendToClient(NetworkEntity client, MessageWriter message)
+        {
+            client.SendMessage(message);
+        }
+
         private void HandleClientDisconnected(NetworkEntity client)
         {
             if (_clients.TryRemove(client.UserID, out _))
