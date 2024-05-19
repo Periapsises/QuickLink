@@ -36,7 +36,7 @@ namespace QuickLink
     /// <summary>
     /// Represents a client that connects to a server using TCP/IP.
     /// </summary>
-    public class Client : IClient, IDisposable
+    public class Client : IDisposable
     {
         /// <summary>
         /// Current state of the client's TCP connection.

@@ -6,7 +6,7 @@ namespace QuickLink
     /// <summary>
     /// Represents a host that communicates with a server and sends/receives messages.
     /// </summary>
-    public class Host : IClient, IDisposable
+    public class Host : IDisposable
     {
         /// <summary>
         /// Event that is raised when a message is received.
