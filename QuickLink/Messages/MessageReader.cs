@@ -22,10 +22,11 @@ namespace QuickLink.Messaging
         /// <param name="buffer">The byte buffer to read from.</param>
         public MessageReader(byte[] buffer)
         {
-            _buffer = buffer;
+            _buffer = new byte[buffer.Length - 4];
+            Array.Copy(buffer, 4, _buffer, 0, _buffer.Length);
             _offset = 0;
 
-            Type = MessageType.Get(ReadUInt32());
+            Type = MessageType.Get(BitConverter.ToUInt32(buffer, 0));
         }
 
         private void EnsureCanReadLength(int length)
