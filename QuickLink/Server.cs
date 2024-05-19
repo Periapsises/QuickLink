@@ -132,6 +132,11 @@ namespace QuickLink
 
             if (disposing)
             {
+                foreach (TcpClient tcpClient in _tcpClients.Values)
+                {
+                    tcpClient.Dispose();
+                }
+
                 _cancellation.Cancel();
                 _listener.Stop();
             }
