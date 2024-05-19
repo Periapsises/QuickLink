@@ -118,8 +118,9 @@ namespace QuickLink.Utils
             {
                 if (disposing)
                 {
-                    _semaphore.Dispose();
+                    _cancellation.Cancel();
                     _cancellation.Dispose();
+                    _semaphore.Dispose();
                 }
 
                 _disposed = true;
