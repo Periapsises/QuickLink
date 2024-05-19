@@ -21,17 +21,17 @@ namespace QuickLink
         /// <summary>
         /// Event that is raised when a client connects to the server.
         /// </summary>
-        public EventPublisher<RemoteClient> ClientConnected = new EventPublisher<RemoteClient>();
+        public EventPublisher<NetworkEntity> ClientConnected = new EventPublisher<NetworkEntity>();
 
         /// <summary>
         /// Event that is raised when a client disconnects from the server.
         /// </summary>
-        public EventPublisher<RemoteClient> ClientDisconnected = new EventPublisher<RemoteClient>();
+        public EventPublisher<NetworkEntity> ClientDisconnected = new EventPublisher<NetworkEntity>();
 
-        private readonly Host _host;
         private readonly TcpListener _listener;
-        private readonly ConcurrentBag<RemoteClient> _clients = new ConcurrentBag<RemoteClient>();
+        private readonly ConcurrentBag<NetworkEntity> _clients = new ConcurrentBag<NetworkEntity>();
         private readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
+        private uint _currentUserID = 2; // UID 0 is reserved for the server and UID 1 for the host.
         private bool _disposed = false;
 
         /// <summary>
@@ -41,12 +41,10 @@ namespace QuickLink
         /// <param name="host">The host object that handles received messages.</param>
         public Server(int port, Host host)
         {
-            _host = host;
             _listener = new TcpListener(IPAddress.Any, port);
 
-            RemoteClient remoteClient = new RemoteClient(host);
-            _clients.Add(remoteClient);
-
+            NetworkEntity hostEntity = new NetworkHost(1, host);
+            _clients.Add(hostEntity);
         }
 
         /// <summary>
@@ -64,13 +62,13 @@ namespace QuickLink
             {
                 TcpClient client = await _listener.AcceptTcpClientAsync();
 #if DEBUG
-                Console.WriteLine($"[Server] Client connected: {client.Client.RemoteEndPoint}");
+                Console.WriteLine($"[Server] Client connected: {client.Client.RemoteEndPoint}  User ID: {_currentUserID}");
 #endif
-                RemoteClient remoteClient = new RemoteClient(client);
-                remoteClient.MessageReceived += (sender, e) => ReceiveMessage(e);
-                remoteClient.ClientDisconnected.Subscribe(() => { ClientDisconnected.Publish(remoteClient); });
-                _clients.Add(remoteClient);
-                ClientConnected.Publish(remoteClient);
+                NetworkEntity clientEntity = new NetworkClient(_currentUserID++, client);
+                clientEntity.SetMessageReceivedCallback(ReceiveMessage);
+                clientEntity.SetClientDisconnectedCallback(() => { ClientDisconnected.Publish(clientEntity); });
+                _clients.Add(clientEntity);
+                ClientConnected.Publish(clientEntity);
             }
         }
 
@@ -93,8 +91,8 @@ namespace QuickLink
 #if DEBUG
             Console.WriteLine($"[Server] Broadcasting message to {_clients.Count} clients");
 #endif
-            foreach (RemoteClient client in _clients)
-                client.Send(message);
+            foreach (NetworkEntity client in _clients)
+                client.SendMessage(message);
         }
 
         /// <summary>
