@@ -21,6 +21,12 @@ namespace QuickLink.Messaging
         /// </summary>
         public string Name { get; private set; }
 
+        private MessageType(uint id)
+        {
+            Id = id;
+            Name = "UNKNOWN";
+        }
+
         /// <summary>
         /// Gets the message type with the specified identifier.
         /// </summary>
@@ -28,13 +34,15 @@ namespace QuickLink.Messaging
         /// <returns>The message type with the specified identifier.</returns>
         public static MessageType Get(uint id)
         {
-            return _messageTypes[id];
-        }
+            lock (_lock)
+            {
+                if (!_messageTypes.ContainsKey(id))
+                {
+                    _messageTypes.Add(id, new MessageType(id));
+                }
 
-        private MessageType(uint id, string name)
-        {
-            Id = id;
-            Name = name;
+                return _messageTypes[id];
+            }
         }
 
         /// <summary>
@@ -48,12 +56,14 @@ namespace QuickLink.Messaging
             lock (_lock)
             {
                 uint id = CRC32.GenerateHash(name);
-                if (!_messageTypes.ContainsKey(id))
+                MessageType messageType = Get(id);
+
+                if (messageType.Name == "UNKNOWN")
                 {
-                    _messageTypes.Add(id, new MessageType(id, name));
+                    messageType.Name = name;
                 }
 
-                return _messageTypes[id];
+                return messageType;
             }
         }
     }
