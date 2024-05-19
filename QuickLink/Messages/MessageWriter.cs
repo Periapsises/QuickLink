@@ -20,7 +20,7 @@ namespace QuickLink.Messaging
         /// <param name="type">The message type.</param>
         public MessageWriter(MessageType type)
         {
-            WriteInt16(type.Id);
+            WriteUInt32(type.Id);
         }
 
         /// <summary>
@@ -56,6 +56,26 @@ namespace QuickLink.Messaging
         /// </summary>
         /// <param name="value">The value to write.</param>
         public void WriteInt32(int value)
+        {
+            byte[] buffer = BitConverter.GetBytes(value);
+            _memoryStream.Write(buffer, 0, buffer.Length);
+        }
+
+        /// <summary>
+        /// Writes a 16-bit unsigned integer to the underlying memory stream.
+        /// </summary>
+        /// <param name="value">The value to write.</param>
+        public void WriteUInt16(uint value)
+        {
+            byte[] buffer = BitConverter.GetBytes((ushort)value);
+            _memoryStream.Write(buffer, 0, buffer.Length);
+        }
+
+        /// <summary>
+        /// Writes a 32-bit unsigned integer to the underlying memory stream.
+        /// </summary>
+        /// <param name="value">The value to write.</param>
+        public void WriteUInt32(uint value)
         {
             byte[] buffer = BitConverter.GetBytes(value);
             _memoryStream.Write(buffer, 0, buffer.Length);

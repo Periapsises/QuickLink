@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using QuickLink.Utils;
 
 namespace QuickLink.Messaging
 {
@@ -7,13 +8,13 @@ namespace QuickLink.Messaging
     /// </summary>
     public class MessageType
     {
-        private static readonly List<MessageType> _messageTypes = new List<MessageType>();
+        private static readonly Dictionary<uint, MessageType> _messageTypes = new Dictionary<uint, MessageType>();
         private static readonly object _lock = new object();
 
         /// <summary>
         /// Gets the unique identifier of the message type.
         /// </summary>
-        public int Id { get; private set; }
+        public uint Id { get; private set; }
 
         /// <summary>
         /// Gets the name of the message type.
@@ -25,12 +26,12 @@ namespace QuickLink.Messaging
         /// </summary>
         /// <param name="id">The identifier of the message type.</param>
         /// <returns>The message type with the specified identifier.</returns>
-        public static MessageType Get(int id)
+        public static MessageType Get(uint id)
         {
             return _messageTypes[id];
         }
 
-        private MessageType(int id, string name)
+        private MessageType(uint id, string name)
         {
             Id = id;
             Name = name;
@@ -46,14 +47,13 @@ namespace QuickLink.Messaging
         {
             lock (_lock)
             {
-                foreach (MessageType mType in _messageTypes)
+                uint id = CRC32.GenerateHash(name);
+                if (!_messageTypes.ContainsKey(id))
                 {
-                    if (mType.Name == name) return mType;
+                    _messageTypes.Add(id, new MessageType(id, name));
                 }
 
-                MessageType messageType = new MessageType(_messageTypes.Count, name);
-                _messageTypes.Add(messageType);
-                return messageType;
+                return _messageTypes[id];
             }
         }
     }
