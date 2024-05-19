@@ -29,7 +29,8 @@ namespace QuickLink
         public EventPublisher<NetworkEntity> ClientDisconnected = new EventPublisher<NetworkEntity>();
 
         private readonly TcpListener _listener;
-        private readonly ConcurrentBag<NetworkEntity> _clients = new ConcurrentBag<NetworkEntity>();
+        private readonly ConcurrentDictionary<uint, NetworkEntity> _clients = new ConcurrentDictionary<uint, NetworkEntity>();
+        private readonly ConcurrentDictionary<uint, TcpClient> _tcpClients = new ConcurrentDictionary<uint, TcpClient>();
         private readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
         private uint _currentUserID = 2; // UID 0 is reserved for the server and UID 1 for the host.
         private bool _disposed = false;
@@ -44,7 +45,7 @@ namespace QuickLink
             _listener = new TcpListener(IPAddress.Any, port);
 
             NetworkEntity hostEntity = new NetworkHost(1, host);
-            _clients.Add(hostEntity);
+            _clients[1] = hostEntity;
         }
 
         /// <summary>
@@ -61,13 +62,16 @@ namespace QuickLink
             while (!_cancellation.Token.IsCancellationRequested)
             {
                 TcpClient client = await _listener.AcceptTcpClientAsync();
+                uint userID = _currentUserID++;
 #if DEBUG
-                Console.WriteLine($"[Server] Client connected: {client.Client.RemoteEndPoint}  User ID: {_currentUserID}");
+                Console.WriteLine($"[Server] Client connected: {client.Client.RemoteEndPoint}  User ID: {userID}");
 #endif
-                NetworkEntity clientEntity = new NetworkClient(_currentUserID++, client);
+                NetworkEntity clientEntity = new NetworkClient(userID, client);
                 clientEntity.SetMessageReceivedCallback(ReceiveMessage);
-                clientEntity.SetClientDisconnectedCallback(() => { ClientDisconnected.Publish(clientEntity); });
-                _clients.Add(clientEntity);
+                clientEntity.SetClientDisconnectedCallback(() => { HandleClientDisconnected(clientEntity); });
+                _clients[userID] = clientEntity;
+                _tcpClients[userID] = client;
+
                 ClientConnected.Publish(clientEntity);
             }
         }
@@ -91,8 +95,22 @@ namespace QuickLink
 #if DEBUG
             Console.WriteLine($"[Server] Broadcasting message to {_clients.Count} clients");
 #endif
-            foreach (NetworkEntity client in _clients)
+            foreach (NetworkEntity client in _clients.Values)
+            {
                 client.SendMessage(message);
+            }
+        }
+
+        private void HandleClientDisconnected(NetworkEntity client)
+        {
+            if (_clients.TryRemove(client.UserID, out _))
+            {
+#if DEBUG
+                Console.WriteLine($"[Server] Client disconnected: {client.UserID}");
+#endif
+                ClientDisconnected.Publish(client);
+                _tcpClients[client.UserID]?.Dispose();
+            }
         }
 
         /// <summary>
