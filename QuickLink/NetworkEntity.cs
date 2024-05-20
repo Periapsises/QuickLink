@@ -22,6 +22,11 @@ namespace QuickLink
         protected Action<MessageReader>? OnMessageReceived;
 
         /// <summary>
+        /// Fired when an exception is thrown while handling a client connection.
+        /// </summary>
+        protected Action<Exception>? OnExceptionThrown;
+
+        /// <summary>
         /// Fired when the client disconnects from the server.
         /// </summary>
         // TODO: Add a reason parameter
@@ -43,6 +48,11 @@ namespace QuickLink
             OnMessageReceived = callback;
         }
 
+        internal void SetExceptionThrownCallback(Action<Exception> callback)
+        {
+            OnExceptionThrown = callback;
+        }
+
         internal void SetClientDisconnectedCallback(Action callback)
         {
             OnClientDisconnected = callback;
@@ -62,6 +72,7 @@ namespace QuickLink
             _tcpClientHandler = new TcpClientHandler(client)
             {
                 DataRecieved = (data) => { OnMessageReceived?.Invoke(new MessageReader(data)); },
+                ExceptionThrown = (ex) => { OnExceptionThrown?.Invoke(ex); },
                 ClientDisconnected = () => { OnClientDisconnected?.Invoke(); }
             };
             _tcpClientHandler.Start();

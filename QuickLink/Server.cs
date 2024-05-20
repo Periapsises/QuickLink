@@ -28,6 +28,11 @@ namespace QuickLink
         /// </summary>
         public EventPublisher<NetworkEntity> ClientDisconnected = new EventPublisher<NetworkEntity>();
 
+        /// <summary>
+        /// Event that is raised when an exception is thrown while handling a client connection.
+        /// </summary>
+        public EventPublisher<Exception> ExceptionThrown = new EventPublisher<Exception>();
+
         private readonly TcpListener _listener;
         private readonly ConcurrentDictionary<uint, NetworkEntity> _clients = new ConcurrentDictionary<uint, NetworkEntity>();
         private readonly ConcurrentDictionary<uint, TcpClient> _tcpClients = new ConcurrentDictionary<uint, TcpClient>();
@@ -68,6 +73,7 @@ namespace QuickLink
 #endif
                 NetworkEntity clientEntity = new NetworkClient(userID, client);
                 clientEntity.SetMessageReceivedCallback(ReceiveMessage);
+                clientEntity.SetExceptionThrownCallback((ex) => { ExceptionThrown.Publish(ex); });
                 clientEntity.SetClientDisconnectedCallback(() => { HandleClientDisconnected(clientEntity); });
                 _clients[userID] = clientEntity;
                 _tcpClients[userID] = client;
